@@ -6,6 +6,7 @@ def print_menu():
     print("\n=== Меню ===")
     print("1. Добавить игру")
     print("2. Показать все игры")
+    print("3. Изменить данные")
     print("4. Удалить игру")
     print("5. Выход")
 
@@ -38,7 +39,33 @@ def show_games(conn):
             print(f"ID: {game[0]}, Название: {game[1]}, Оценка: {game[2]}, Время: {game[3]} ч.")
 
 
+def update_game(conn):
+    show_games(conn)
+    game_id = int(input("Введите ID игры для обновления: "))
 
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM games WHERE id = %s", (game_id,))
+    game = cursor.fetchone()
+
+    if not game:
+        print("Игра не найдена!")
+        return
+
+    # Исправленные строки:
+    title = input(f"Название ({game[1]}): ") or game[1]
+    rating = float(input(f"Оценка ({game[2]}): ") or game[2])  # Закрыты все скобки
+    completion_time = float(input(f"Время ({game[3]}): ") or game[3])  # И здесь тоже
+
+    cursor.execute(
+        """
+        UPDATE games 
+        SET title = %s, rating = %s, completion_time = %s 
+        WHERE id = %s
+        """,
+        (title, rating, completion_time, game_id)
+    )
+    conn.commit()
+    print("Игра обновлена!")
 
 def delete_game(conn):
     show_games(conn)
@@ -63,6 +90,8 @@ def main():
                 add_game(conn)
             elif choice == "2":
                 show_games(conn)
+            elif choice == "3":
+                update_game(conn)
             elif choice == "4":
                 delete_game(conn)
             elif choice == "5":
