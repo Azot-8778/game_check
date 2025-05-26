@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2 import OperationalError
+#set client_encoding='WIN866';
 
 def create_connection():
     conn = None
